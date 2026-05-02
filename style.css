@@ -1,0 +1,206 @@
+/* GENEL AYARLAR */
+:root {
+    --ana-renk: #3498db;
+    --koyu-renk: #2c3e50;
+    --yesil: #27ae60;
+    --kirmizi: #e74c3c;
+    --gri: #f4f7f6;
+    --beyaz: #ffffff;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--gri);
+    margin: 0;
+    padding: 0;
+    color: var(--koyu-renk);
+    -webkit-tap-highlight-color: transparent; /* Mobil tıklama efektini temizler */
+}
+
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    color: var(--koyu-renk);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 30px;
+}
+
+/* BÖLÜMLER (KART TASARIMI) */
+.section {
+    background: var(--beyaz);
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    border: 1px solid rgba(0,0,0,0.03);
+}
+
+h3 {
+    margin-top: 0;
+    font-size: 1.1rem;
+    color: var(--ana-renk);
+    border-bottom: 2px solid var(--gri);
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+/* GİRDİ ALANLARI */
+input, select {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 10px;
+    border: 2px solid #edf2f7;
+    border-radius: 10px;
+    box-sizing: border-box;
+    font-size: 16px; /* Mobilde zoom yapmasını engeller */
+    transition: border-color 0.3s;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: var(--ana-renk);
+}
+
+/* BUTONLAR */
+button {
+    cursor: pointer;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+button:active {
+    transform: scale(0.96);
+}
+
+button[onclick^="urunEkle"], 
+button[onclick^="stokIslem"],
+button[onclick^="raporOlustur"] {
+    background-color: var(--ana-renk);
+    color: white;
+    width: 100%;
+}
+
+.btn-giris { background-color: var(--yesil) !important; color: white; }
+.btn-cikis { background-color: var(--kirmizi) !important; color: white; }
+.btn-sil { background-color: #fceaea !important; color: var(--kirmizi); border-radius: 5px; padding: 5px 10px; }
+
+/* TABLOLAR */
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 8px;
+}
+
+th {
+    text-align: left;
+    color: #a0aec0;
+    font-size: 0.85rem;
+    padding: 0 10px;
+}
+
+td {
+    background: var(--beyaz);
+    padding: 15px 10px;
+    border-top: 1px solid #f1f4f8;
+    border-bottom: 1px solid #f1f4f8;
+}
+
+td:first-child { border-left: 1px solid #f1f4f8; border-radius: 10px 0 0 10px; }
+td:last-child { border-right: 1px solid #f1f4f8; border-radius: 0 10px 10px 0; }
+
+/* MODAL GÜZELLEŞTİRME */
+#detayModal > div {
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* KRİTİK PANEL */
+#kritikPanel {
+    background: #fff5f5 !important;
+    border: none !important;
+    border-left: 5px solid var(--kirmizi) !important;
+}
+
+/* MOBİL ÖZEL AYARLAR */
+@media (max-width: 480px) {
+    .container { padding: 10px; }
+    h1 { font-size: 1.5rem; margin-top: 10px; }
+    .section { padding: 15px; }
+}
+/* Hareket silme butonu efekti */
+button[onclick^="hareketSil"]:active {
+    transform: scale(0.9);
+}
+button[onclick^="hareketSil"]:hover {
+    color: #c0392b !important;
+}
+/* style.css dosyasının sonuna ekle */
+#detayModal label {
+    display: block;
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #666;
+}
+
+#detayModal input {
+    border-radius: 5px;
+    outline: none;
+}
+
+#detayModal input:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+}
+#detayModal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5); /* Arka planı karart */
+    z-index: 9999; /* En üstte tut */
+    display: none; /* Varsayılan gizli */
+}
+
+.modal-content {
+    background: white;
+    margin: 10% auto;
+    padding: 20px;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 10px;
+}
+/* Mobil Uygulama Modu Ayarları */
+body {
+    overscroll-behavior-y: contain; /* Sayfayı aşağı kaydırınca yenilenmeyi (pull-to-refresh) engeller */
+    user-select: none; /* Metinlerin kazara seçilmesini engeller, uygulama hissi verir */
+    -webkit-user-select: none;
+}
+
+#dashboard {
+    box-shadow: 0 8px 16px rgba(0,0,0,0.15) !important;
+}
+
+/* Tab butonlarına basıldığında efekt */
+.tab-btn:active {
+    transform: scale(0.95);
+    background-color: #2980b9 !important;
+}
