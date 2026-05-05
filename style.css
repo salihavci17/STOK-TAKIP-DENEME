@@ -1,305 +1,171 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #f0f2f5;
-    padding: 20px;
-}
-
-.container {
-    max-width: 600px;
-    margin: 0 auto;
-}
-
-h1 {
-    text-align: center;
-    color: #2c3e50;
-    margin-bottom: 20px;
-    font-size: 1.5rem;
-}
-
-/* Dashboard */
-.dashboard {
-    display: flex;
-    gap: 10px;
-    background: linear-gradient(135deg, #2c3e50, #34495e);
-    padding: 15px;
-    border-radius: 15px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-}
-
-.dash-card {
-    flex: 1;
-    text-align: center;
-    color: white;
-    min-width: 100px;
-}
-
-.dash-card small {
-    display: block;
-    font-size: 10px;
-    opacity: 0.8;
-}
-
-.dash-card div {
-    font-size: 18px;
-    font-weight: bold;
-    margin-top: 5px;
-}
-
-/* Tab Menu */
-.tab-menu {
-    display: flex;
-    gap: 5px;
-    background: white;
-    padding: 5px;
-    border-radius: 12px;
-    margin-bottom: 20px;
-}
-
-.tab-btn {
-    flex: 1;
-    padding: 10px;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    font-weight: bold;
-    background: transparent;
-}
-
-.tab-btn.active {
-    background: #3498db;
-    color: white;
-}
-
-/* Tab Content */
-.tab-content {
-    display: none;
-}
-
-.tab-content.active {
-    display: block;
-}
-
-/* Kartlar */
-.card {
-    background: white;
-    border-radius: 15px;
-    padding: 15px;
-    margin-bottom: 15px;
-}
-
-/* Form Elemanları */
-input, select {
-    width: 100%;
-    padding: 12px;
-    margin-bottom: 10px;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    font-size: 14px;
-}
-
-input:focus, select:focus {
-    outline: none;
-    border-color: #3498db;
-}
-
-/* Butonlar */
-button {
-    cursor: pointer;
-    border: none;
-    border-radius: 10px;
-    padding: 12px;
-    font-weight: bold;
-}
-
-.btn-primary { background: #27ae60; color: white; flex: 1; }
-.btn-secondary { background: #34495e; color: white; padding: 0 20px; }
-.btn-giris { background: #27ae60; color: white; flex: 1; }
-.btn-cikis { background: #e74c3c; color: white; flex: 1; }
-.btn-sepet { background: #9b59b6; color: white; width: 100%; margin-top: 10px; }
-.btn-kaydet { background: #3498db; color: white; width: 100%; }
-.btn-sorgula { background: #34495e; color: white; width: 100%; }
-.btn-guncelle { background: #27ae60; color: white; flex: 2; }
-.btn-iptal { background: #95a5a6; color: white; flex: 1; }
-
-.islem-butonlar {
-    display: flex;
-    gap: 10px;
-    margin-top: 5px;
-}
-
-.sepet-alani {
-    background: white;
-    border-radius: 15px;
-    padding: 15px;
-    margin-top: 20px;
-}
-
-.sepet-alani h4 { margin-bottom: 10px; color: #2c3e50; }
-
-.tarih-grup {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 10px;
-}
-
-.rapor-butonlar {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 15px;
-}
-
-.rapor-butonlar button {
-    flex: 1;
-    background: #27ae60;
-    color: white;
-}
-
-/* Kritik Panel */
-.kritik-panel {
-    background: #fff5f5;
-    border-left: 5px solid #e74c3c;
-    padding: 15px;
-    border-radius: 12px;
-    margin-top: 20px;
-}
-
-.kritik-panel h4 { color: #c53030; margin-bottom: 10px; }
-.kritik-panel ul { padding-left: 20px; margin-bottom: 10px; }
-.kritik-panel li { color: #c53030; margin: 5px 0; }
-
-.siparis-butonlar {
-    display: flex;
-    gap: 10px;
-    margin-top: 10px;
-}
-
-.siparis-butonlar button {
-    flex: 1;
-    background: #e74c3c;
-    color: white;
-}
-
-/* Tablolar */
-.stok-tablo, #raporTablo, #hareketlerTablo {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-}
-
-.stok-tablo th, #raporTablo th, #hareketlerTablo th {
-    text-align: left;
-    padding: 10px;
-    background: #3498db;
-    color: white;
-}
-
-.stok-tablo td, #raporTablo td, #hareketlerTablo td {
-    padding: 10px;
-    border-bottom: 1px solid #eee;
-}
-
-.tablo-kapsayici { overflow-x: auto; }
-.grup-baslik { background: #f1c40f; cursor: pointer; }
-.grup-baslik td { font-weight: bold; padding: 10px; }
-
-/* Modal */
-.modal {
+/* Login Screen */
+.login-screen {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.5);
-    display: none;
-    z-index: 1000;
-}
-
-.modal-content {
-    background: white;
-    margin: 10% auto;
-    padding: 20px;
-    width: 90%;
-    max-width: 500px;
-    border-radius: 15px;
-}
-
-.modal-satir { display: flex; gap: 10px; }
-.modal-butonlar { display: flex; gap: 10px; margin-top: 15px; }
-
-.barkod-grup {
+    background: linear-gradient(135deg, #2c3e50, #3498db);
     display: flex;
-    gap: 5px;
-    margin-bottom: 10px;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
 }
 
-.barkod-grup input { flex: 1; margin-bottom: 0; }
-.urun-secim { margin-bottom: 10px; }
-
-/* Reader */
-#reader {
-    width: 100%;
+.login-card {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    width: 90%;
     max-width: 400px;
-    margin: 0 auto;
-    border-radius: 10px;
-    overflow: hidden;
-    background: #000;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
 }
 
-#reader video { width: 100%; height: auto; }
-
-@media (max-width: 480px) {
-    body { padding: 10px; }
-    .dashboard { flex-wrap: wrap; }
-    .dash-card { flex: 0 0 calc(50% - 10px); }
-}
-/* Kritik Panel - Dashboard altında gösterilecek */
-.kritik-panel {
-    background: #fff5f5;
-    border-left: 5px solid #e74c3c;
-    border-radius: 12px;
-    padding: 15px;
+.login-card h2 {
+    text-align: center;
+    color: #2c3e50;
     margin-bottom: 20px;
 }
 
-.kritik-panel h4 {
-    color: #c53030;
-    margin-bottom: 10px;
-    font-size: 14px;
-}
-
-.kritik-panel ul {
-    padding-left: 20px;
-    margin-bottom: 10px;
-    max-height: 200px;
-    overflow-y: auto;
-}
-
-.kritik-panel li {
-    color: #c53030;
-    margin: 5px 0;
-    font-size: 13px;
-}
-
-.siparis-butonlar {
+.login-tabs {
     display: flex;
-    gap: 10px;
+    gap: 5px;
+    margin-bottom: 20px;
+    background: #f0f2f5;
+    padding: 5px;
+    border-radius: 10px;
+}
+
+.login-tab {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.login-tab.active {
+    background: #3498db;
+    color: white;
+}
+
+.login-form {
+    display: none;
+}
+
+.login-form.active {
+    display: block;
+}
+
+.btn-login {
+    width: 100%;
+    background: #27ae60;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
     margin-top: 10px;
 }
 
-.siparis-butonlar button {
-    flex: 1;
+.demo-info {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 12px;
+    color: #7f8c8d;
+}
+
+/* App Header */
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    padding: 10px 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.app-header h1 {
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-role {
+    background: #3498db;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+}
+
+.btn-logout {
     background: #e74c3c;
     color: white;
     border: none;
+    padding: 6px 12px;
     border-radius: 8px;
-    padding: 8px;
-    font-size: 12px;
     cursor: pointer;
+    font-size: 12px;
+}
+
+/* Kullanıcı Tablosu */
+.kullanici-tablo {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.kullanici-tablo th, .kullanici-tablo td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.rol-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.rol-admin { background: #e74c3c; color: white; }
+.rol-yonetici { background: #f39c12; color: white; }
+.rol-personel { background: #27ae60; color: white; }
+.rol-goruntuleyici { background: #95a5a6; color: white; }
+
+/* Kullanıcı Ekleme Alanı */
+.kullanici-ekle {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 12px;
+}
+
+.kullanici-ekle h4 {
+    margin-bottom: 10px;
+    color: #2c3e50;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .app-header {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+    
+    .user-info {
+        justify-content: center;
+    }
 }

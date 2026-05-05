@@ -16,6 +16,13 @@ import {
     orderBy,
     limit
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { 
+    getAuth, 
+    createUserWithEmailAndPassword, 
+    signInWithEmailAndPassword, 
+    signOut, 
+    onAuthStateChanged 
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 // --- KONFİGÜRASYON ---
 const firebaseConfig = {
@@ -30,18 +37,208 @@ const firebaseConfig = {
 // --- BAŞLATMA ---
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
 
 // --- DEĞİŞKENLER ---
 let stoklar = {};
 let sepet = [];
 let html5QrCode = null;
 let seciliUrunId = "";
+let mevcutKullanici = null;
+let mevcutRol = null;
 
 // --- YARDIMCI ---
 function getUrunAdi(urun) {
     if (!urun) return "Bilinmeyen";
     return urun.urunAd || urun.ad || urun.isim || urun.name || urun.id || "Bilinmeyen";
 }
+
+// --- YETKİ KONTROLÜ ---
+function yetkiliMi(roller) {
+    if (!mevcutRol) return false;
+    return roller.includes(mevcutRol);
+}
+
+function adminMi() {
+    return mevcutRol === 'admin';
+}
+
+function yoneticiMi() {
+    return mevcutRol === 'admin' || mevcutRol === 'yonetici';
+}
+
+// --- KULLANICI YÖNETİMİ ---
+window.kullaniciGiris = async () => {
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    
+    if (!email || !password) {
+        alert("E-posta ve şifre girin!");
+        return;
+    }
+    
+    try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        console.log("Giriş başarılı:", userCredential.user.email);
+    } catch (error) {
+        alert("Giriş hatası: " + error.message);
+    }
+};
+
+window.kullaniciKayit = async () => {
+    const email = document.getElementById('registerEmail').value;
+    const password = document.getElementById('registerPassword').value;
+    const role = document.getElementById('registerRole').value;
+    
+    if (!email || !password) {
+        alert("E-posta ve şifre girin!");
+        return;
+    }
+    
+    if (password.length < 6) {
+        alert("Şifre en az 6 karakter olmalı!");
+        return;
+    }
+    
+    try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        await setDoc(doc(db, "kullanicilar", userCredential.user.uid), {
+            email: email,
+            rol: role,
+            createdAt: Timestamp.now()
+        });
+        alert("Kayıt başarılı! Giriş yapabilirsiniz.");
+        switchLoginTab('giris');
+    } catch (error) {
+        alert("Kayıt hatası: " + error.message);
+    }
+};
+
+window.kullaniciCikis = async () => {
+    try {
+        await signOut(auth);
+        document.getElementById('mainApp').style.display = 'none';
+        document.getElementById('loginScreen').style.display = 'flex';
+    } catch (error) {
+        alert("Çıkış hatası: " + error.message);
+    }
+};
+
+window.switchLoginTab = (tab) => {
+    document.querySelectorAll('.login-tab').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.login-form').forEach(form => form.classList.remove('active'));
+    
+    if (tab === 'giris') {
+        document.querySelector('.login-tab:first-child').classList.add('active');
+        document.getElementById('girisForm').classList.add('active');
+    } else {
+        document.querySelector('.login-tab:last-child').classList.add('active');
+        document.getElementById('kayitForm').classList.add('active');
+    }
+};
+
+// Admin kullanıcı ekleme
+window.adminKullaniciEkle = async () => {
+    if (!adminMi()) {
+        alert("Bu işlem için admin yetkisi gerekli!");
+        return;
+    }
+    
+    const email = document.getElementById('yeniKullaniciEmail').value;
+    const password = document.getElementById('yeniKullaniciSifre').value;
+    const role = document.getElementById('yeniKullaniciRol').value;
+    
+    if (!email || !password) {
+        alert("E-posta ve şifre girin!");
+        return;
+    }
+    
+    try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        await setDoc(doc(db, "kullanicilar", userCredential.user.uid), {
+            email: email,
+            rol: role,
+            createdAt: Timestamp.now(),
+            createdBy: mevcutKullanici?.email
+        });
+        alert("Kullanıcı eklendi!");
+        kullaniciListesiniGetir();
+        document.getElementById('yeniKullaniciEmail').value = "";
+        document.getElementById('yeniKullaniciSifre').value = "";
+    } catch (error) {
+        alert("Kullanıcı ekleme hatası: " + error.message);
+    }
+};
+
+async function kullaniciListesiniGetir() {
+    if (!adminMi()) return;
+    
+    try {
+        const snap = await getDocs(collection(db, "kullanicilar"));
+        const listeDiv = document.getElementById('kullaniciListesi');
+        listeDiv.innerHTML = `
+            <table class="kullanici-tablo">
+                <thead><tr><th>E-posta</th><th>Rol</th><th>Oluşturma</th></tr></thead>
+                <tbody>
+                    ${snap.docs.map(d => `
+                        <tr>
+                            <td>${d.data().email}</td>
+                            <td><span class="rol-badge rol-${d.data().rol}">${d.data().rol}</span></td>
+                            <td>${d.data().createdAt?.toDate().toLocaleDateString('tr-TR') || '-'}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+    } catch(e) { console.error(e); }
+}
+
+// Kullanıcı durum değişikliklerini dinle
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        mevcutKullanici = user;
+        
+        // Kullanıcı rolünü Firestore'dan al
+        const userDoc = await getDocs(query(collection(db, "kullanicilar"), where("email", "==", user.email)));
+        if (!userDoc.empty) {
+            mevcutRol = userDoc.docs[0].data().rol;
+        } else {
+            // Demo kullanıcı için varsayılan rol
+            mevcutRol = user.email === "demo@stok.com" ? "admin" : "personel";
+        }
+        
+        // Kullanıcı bilgilerini göster
+        document.getElementById('userName').innerText = user.email.split('@')[0];
+        document.getElementById('userRole').innerText = mevcutRol;
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('mainApp').style.display = 'block';
+        
+        // Yetkiye göre butonları göster/gizle
+        const yeniUrunButonu = document.getElementById('yeniUrunTabBtn');
+        const kullaniciButonu = document.getElementById('kullaniciTabBtn');
+        
+        if (yoneticiMi()) {
+            if (yeniUrunButonu) yeniUrunButonu.style.display = 'block';
+        } else {
+            if (yeniUrunButonu) yeniUrunButonu.style.display = 'none';
+        }
+        
+        if (adminMi()) {
+            if (kullaniciButonu) kullaniciButonu.style.display = 'block';
+            kullaniciListesiniGetir();
+        } else {
+            if (kullaniciButonu) kullaniciButonu.style.display = 'none';
+        }
+        
+        // Verileri yükle
+        verileriGetir();
+    } else {
+        mevcutKullanici = null;
+        mevcutRol = null;
+        document.getElementById('mainApp').style.display = 'none';
+        document.getElementById('loginScreen').style.display = 'flex';
+    }
+});
 
 // --- VERİ ÇEKME ---
 function verileriGetir() {
@@ -97,8 +294,8 @@ function stoklariListele() {
                 <tr class="${grupId}" onclick="detayGoster('${u.id}')" style="display:none">
                     <td style="padding-left:20px;">${getUrunAdi(u)}</td>
                     <td style="color:${miktar <= kritik ? 'red' : 'inherit'}">${miktar}</td>
-                    <td><button onclick="event.stopPropagation(); urunSil('${u.id}')">✖</button></td>
-                </tr>
+                    <td>${yoneticiMi() ? `<button onclick="event.stopPropagation(); urunSil('${u.id}')">✖</button>` : ''}</td>
+                 </tr>
             `;
         });
     });
@@ -139,7 +336,7 @@ async function hareketleriListele() {
     const tbody = document.getElementById('hareketlerTablo');
     if (!tbody) return;
     try {
-        const q = query(collection(db, "hareketler"), orderBy("tarih", "desc"), limit(50));
+        const q = query(collection(db, "hareketler"), orderBy("tarih", "desc"), limit(100));
         const snap = await getDocs(q);
         tbody.innerHTML = "";
         snap.forEach(d => {
@@ -151,7 +348,8 @@ async function hareketleriListele() {
                     <td>${h.urun || "-"}</td>
                     <td>${h.miktar}</td>
                     <td style="color:${h.tur === 'giris' ? 'green' : 'red'}">${h.tur === 'giris' ? 'GİRİŞ' : 'ÇIKIŞ'}</td>
-                    <td><button onclick="hareketSil('${d.id}')" style="background:none; color:red;">🗑️</button></td>
+                    <td>${h.kullanici || "-"}</td>
+                    <td>${yoneticiMi() ? `<button onclick="hareketSil('${d.id}')" style="background:none; color:red;">🗑️</button>` : ''}</td>
                 </tr>
             `;
         });
@@ -159,6 +357,7 @@ async function hareketleriListele() {
 }
 
 window.hareketSil = async (id) => {
+    if(!yoneticiMi()) return alert("Bu işlem için yetkiniz yok!");
     if(confirm("Bu hareket silinsin mi?")) {
         await deleteDoc(doc(db, "hareketler", id));
         hareketleriListele();
@@ -180,6 +379,8 @@ async function bugunOzetiniGetir() {
 
 // --- ÜRÜN İŞLEMLERİ ---
 async function urunEkle() {
+    if (!yoneticiMi()) return alert("Ürün eklemek için yetkiniz yok!");
+    
     const ad = document.getElementById('urunAdi').value.trim();
     if (!ad) return alert("Ürün adı girin!");
     try {
@@ -208,7 +409,12 @@ async function stokIslem(tip) {
         const batch = writeBatch(db);
         batch.update(doc(db, "stoklar", id), { kalan: yeni });
         batch.set(doc(collection(db, "hareketler")), {
-            urunId: id, urun: getUrunAdi(stoklar[id]), tur: tip, miktar: miktar, tarih: Timestamp.now()
+            urunId: id, 
+            urun: getUrunAdi(stoklar[id]), 
+            tur: tip, 
+            miktar: miktar, 
+            tarih: Timestamp.now(),
+            kullanici: mevcutKullanici?.email || "bilinmiyor"
         });
         await batch.commit();
         alert("İşlem başarılı!");
@@ -217,6 +423,7 @@ async function stokIslem(tip) {
 }
 
 window.urunGuncelle = async () => {
+    if (!yoneticiMi()) return alert("Ürün güncellemek için yetkiniz yok!");
     if (!seciliUrunId) return alert("Ürün seçili değil!");
     try {
         await updateDoc(doc(db, "stoklar", seciliUrunId), {
@@ -232,6 +439,7 @@ window.urunGuncelle = async () => {
 };
 
 window.urunSil = async (id) => {
+    if (!yoneticiMi()) return alert("Ürün silmek için yetkiniz yok!");
     if(confirm("Ürün silinsin mi?")) {
         await deleteDoc(doc(db, "stoklar", id));
     }
@@ -243,7 +451,8 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         const tabId = this.getAttribute('data-tab');
-        document.getElementById(tabId).classList.add('active');
+        const aktifTab = document.getElementById(tabId);
+        if(aktifTab) aktifTab.classList.add('active');
         this.classList.add('active');
     });
 });
@@ -272,7 +481,7 @@ window.detayGoster = async function(id) {
             const q = query(collection(db, "hareketler"), where("urunId", "==", id), orderBy("tarih", "desc"), limit(10));
             const snap = await getDocs(q);
             detayDiv.innerHTML = snap.empty ? "<i>Hareket yok</i>" :
-                snap.docs.map(d => `<div>${d.data().tarih?.toDate().toLocaleString()} - ${d.data().tur === 'giris' ? '➕' : '➖'} ${d.data().miktar}</div>`).join('');
+                snap.docs.map(d => `<div>${d.data().tarih?.toDate().toLocaleString()} - ${d.data().tur === 'giris' ? '➕' : '➖'} ${d.data().miktar} (${d.data().kullanici || '-'})</div>`).join('');
         } catch(e) { detayDiv.innerHTML = "<i>Hata</i>"; }
     }
 };
@@ -326,7 +535,12 @@ window.topluIslem = async (tip) => {
             if (tip === 'cikis' && mevcut < item.miktar) throw new Error(`${item.ad} için stok yetersiz!`);
             batch.update(doc(db, "stoklar", item.id), { kalan: yeni });
             batch.set(doc(collection(db, "hareketler")), {
-                urunId: item.id, urun: item.ad, tur: tip, miktar: item.miktar, tarih: Timestamp.now()
+                urunId: item.id, 
+                urun: item.ad, 
+                tur: tip, 
+                miktar: item.miktar, 
+                tarih: Timestamp.now(),
+                kullanici: mevcutKullanici?.email || "bilinmiyor"
             });
         }
         await batch.commit();
@@ -339,27 +553,9 @@ window.topluIslem = async (tip) => {
 // ========== KAMERA FONKSİYONLARI ==========
 let kameraAktif = false;
 
-// Eski fonksiyon isimlerini de destekle
-window.anaKameraBaslat = function() {
-    kameraBaslat();
-};
-
-window.anaKameraDurdur = function() {
-    kameraDurdur();
-};
-
-window.yeniUrunKameraBaslat = function() {
-    yeniUrunKamera();
-};
-
-window.yeniUrunKameraDurdur = function() {
-    kameraDurdur();
-};
-
 function kameraBaslat() {
     const readerDiv = document.getElementById("reader");
     const kameraAcBtn = document.getElementById("kameraAcBtn");
-    const kameraKapatBtn = document.getElementById("kameraKapatBtn");
     
     if (kameraAktif) {
         alert("Kamera zaten açık!");
@@ -369,6 +565,12 @@ function kameraBaslat() {
     if (!readerDiv) {
         alert("Kamera alanı bulunamadı!");
         return;
+    }
+    
+    if(kameraAcBtn) {
+        kameraAcBtn.innerHTML = "❌ Kamerayı Kapat";
+        kameraAcBtn.style.background = "#e74c3c";
+        kameraAcBtn.onclick = kameraDurdur;
     }
     
     readerDiv.style.display = "block";
@@ -416,20 +618,14 @@ function kameraBaslat() {
         (err) => { console.log("QR okuma:", err); }
     ).then(() => {
         kameraAktif = true;
-        // Butonları doğru şekilde göster/gizle
-        if(kameraAcBtn) kameraAcBtn.style.display = "block";
-        if(kameraKapatBtn) {
-            kameraKapatBtn.style.display = "block";
-            kameraKapatBtn.style.setProperty('display', 'block', 'important');
-        }
     }).catch(err => {
         console.error("Kamera hatası:", err);
         alert("Kamera başlatılamadı. Lütfen izin verin.");
         readerDiv.style.display = "none";
-        if(kameraAcBtn) kameraAcBtn.style.display = "block";
-        if(kameraKapatBtn) {
-            kameraKapatBtn.style.display = "none";
-            kameraKapatBtn.style.setProperty('display', 'none', 'important');
+        if(kameraAcBtn) {
+            kameraAcBtn.innerHTML = "📷 Barkod Oku";
+            kameraAcBtn.style.background = "#27ae60";
+            kameraAcBtn.onclick = kameraBaslat;
         }
     });
 }
@@ -437,7 +633,6 @@ function kameraBaslat() {
 function kameraDurdur() {
     const readerDiv = document.getElementById("reader");
     const kameraAcBtn = document.getElementById("kameraAcBtn");
-    const kameraKapatBtn = document.getElementById("kameraKapatBtn");
     
     if(html5QrCode) {
         html5QrCode.stop().catch(()=>{});
@@ -446,22 +641,25 @@ function kameraDurdur() {
     if(readerDiv) readerDiv.style.display = "none";
     kameraAktif = false;
     
-    // Butonları doğru şekilde göster/gizle
-    if(kameraAcBtn) kameraAcBtn.style.display = "block";
-    if(kameraKapatBtn) {
-        kameraKapatBtn.style.display = "none";
-        kameraKapatBtn.style.setProperty('display', 'none', 'important');
+    if(kameraAcBtn) {
+        kameraAcBtn.innerHTML = "📷 Barkod Oku";
+        kameraAcBtn.style.background = "#27ae60";
+        kameraAcBtn.onclick = kameraBaslat;
     }
 }
 
 function yeniUrunKamera() {
     const readerDiv = document.getElementById("reader");
-    const kameraAcBtn = document.getElementById("kameraAcBtn");
-    const kameraKapatBtn = document.getElementById("kameraKapatBtn");
+    const yeniUrunKameraBtn = document.getElementById("yeniUrunKameraBtn");
     
     if (!readerDiv) {
         alert("Kamera alanı bulunamadı!");
         return;
+    }
+    
+    if(yeniUrunKameraBtn) {
+        yeniUrunKameraBtn.innerHTML = "❌ Kapat";
+        yeniUrunKameraBtn.style.background = "#e74c3c";
     }
     
     readerDiv.style.display = "block";
@@ -478,61 +676,29 @@ function yeniUrunKamera() {
         (decodedText) => {
             document.getElementById('urunBarkod').value = decodedText;
             alert("✅ Barkod okundu: " + decodedText);
-            kameraDurdur();
         }, 
         (err) => {}
-    ).then(() => {
-        if(kameraAcBtn) kameraAcBtn.style.display = "block";
-        if(kameraKapatBtn) {
-            kameraKapatBtn.style.display = "block";
-            kameraKapatBtn.style.setProperty('display', 'block', 'important');
-        }
-    }).catch(err => {
+    ).catch(err => {
         console.error("Kamera hatası:", err);
         alert("Kamera başlatılamadı.");
         readerDiv.style.display = "none";
-        if(kameraKapatBtn) {
-            kameraKapatBtn.style.display = "none";
-            kameraKapatBtn.style.setProperty('display', 'none', 'important');
+        if(yeniUrunKameraBtn) {
+            yeniUrunKameraBtn.innerHTML = "📷 Barkod Oku";
+            yeniUrunKameraBtn.style.background = "#34495e";
         }
     });
 }
 
-// Buton olaylarını bağla (sayfa yüklendiğinde)
-function kameraButonlariniBagla() {
-    const kameraAcBtn = document.getElementById("kameraAcBtn");
-    const kameraKapatBtn = document.getElementById("kameraKapatBtn");
-    const yeniUrunKameraBtn = document.getElementById("yeniUrunKameraBtn");
-    
-    // Önce eski olayları temizle
-    if(kameraAcBtn) {
-        const yeniButon = kameraAcBtn.cloneNode(true);
-        kameraAcBtn.parentNode.replaceChild(yeniButon, kameraAcBtn);
-        yeniButon.addEventListener("click", kameraBaslat);
-    }
-    
-    if(kameraKapatBtn) {
-        const yeniButon = kameraKapatBtn.cloneNode(true);
-        kameraKapatBtn.parentNode.replaceChild(yeniButon, kameraKapatBtn);
-        yeniButon.addEventListener("click", kameraDurdur);
-        yeniButon.style.display = "none";
-        yeniButon.style.setProperty('display', 'none', 'important');
-    }
-    
-    if(yeniUrunKameraBtn) {
-        const yeniButon = yeniUrunKameraBtn.cloneNode(true);
-        yeniUrunKameraBtn.parentNode.replaceChild(yeniButon, yeniUrunKameraBtn);
-        yeniButon.addEventListener("click", yeniUrunKamera);
-    }
-}
+// Buton olaylarını bağla
+document.getElementById("kameraAcBtn")?.addEventListener("click", kameraBaslat);
+document.getElementById("yeniUrunKameraBtn")?.addEventListener("click", yeniUrunKamera);
 
-// Sayfa yüklendiğinde butonları bağla
-document.addEventListener("DOMContentLoaded", () => {
-    kameraButonlariniBagla();
-    verileriGetir();
-});
+// Eski fonksiyon isimlerini destekle
+window.anaKameraBaslat = kameraBaslat;
+window.anaKameraDurdur = kameraDurdur;
+window.yeniUrunKameraBaslat = yeniUrunKamera;
+window.yeniUrunKameraDurdur = kameraDurdur;
 
-// NOT: Yukarıdaki DOMContentLoaded event'ini kaldırın, yerine yukarıdaki kullanıldı
 // ========== RAPORLAMA ==========
 window.raporOlustur = async () => {
     const baslangic = document.getElementById('raporBaslangic').value;
@@ -564,7 +730,7 @@ window.raporOlustur = async () => {
             tbody.innerHTML = '<tr><td colspan="3">Veri yok</td></tr>';
         } else {
             Object.entries(data).sort().forEach(([urun, val]) => {
-                tbody.innerHTML += `<tr><td>${urun}</td><td style="text-align:center">${val.giris}</td><td style="text-align:center">${val.cikis}</td></tr>`;
+                tbody.innerHTML += `<tr><td style="text-align:left;">${urun}</td><td style="text-align:center">${val.giris}</td><td style="text-align:center">${val.cikis}</tr>`;
             });
         }
         document.getElementById('raporSonuc').style.display = 'block';
@@ -597,7 +763,7 @@ window.siparisPDF = () => {
     
     let rows = "";
     kritikler.forEach(u => {
-        rows += `<tr><td>${getUrunAdi(u)}</td><td style="text-align:center">${u.kalan}</td><td style="text-align:center">${u.kritik}</td><td style="text-align:center">${Math.max(0, u.kritik * 2 - u.kalan)}</td></tr>`;
+        rows += `<tr><td style="text-align:left;">${getUrunAdi(u)}</td><td style="text-align:center">${u.kalan}</td><td style="text-align:center">${u.kritik}</td><td style="text-align:center">${Math.max(0, u.kritik * 2 - u.kalan)}</td></tr>`;
     });
     
     const w = window.open('', '_blank');
@@ -617,7 +783,7 @@ window.siparisYazdir = () => {
     
     let rows = "";
     kritikler.forEach(u => {
-        rows += `<tr><td>${getUrunAdi(u)}</td><td style="text-align:center">${u.kalan}</td><td style="text-align:center">${u.kritik}</td><td style="text-align:center">${Math.max(0, u.kritik * 2 - u.kalan)}</td></tr>`;
+        rows += `<tr><td style="text-align:left;">${getUrunAdi(u)}</td><td style="text-align:center">${u.kalan}</td><td style="text-align:center">${u.kritik}</td><td style="text-align:center">${Math.max(0, u.kritik * 2 - u.kalan)}</td></tr>`;
     });
     
     const w = window.open('', '_blank');
@@ -625,7 +791,7 @@ window.siparisYazdir = () => {
         <html><head><meta charset="UTF-8"><title>Sipariş Listesi</title>
         <style>body{font-family:Segoe UI,sans-serif;padding:20px} table{border-collapse:collapse;width:100%} th,td{border:1px solid #ddd;padding:8px} th{background:#e74c3c;color:white}</style>
         </head><body><h1>Sipariş Listesi</h1><p>Tarih: ${new Date().toLocaleString('tr-TR')}</p>
-        <table><thead><tr><th>Ürün</th><th>Stok</th><th>Kritik</th><th>Önerilen</th></tr></thead><tbody>${rows}</tbody></table>
+        <tr><thead><tr><th>Ürün</th><th>Stok</th><th>Kritik</th><th>Önerilen</th></tr></thead><tbody>${rows}</tbody></table>
         <script>window.print();<\/script></body></html>
     `);
     w.document.close();
@@ -644,8 +810,3 @@ window.tabloFiltrele = () => {
 if('serviceWorker' in navigator) {
     navigator.serviceWorker.register('service-worker.js').catch(console.log);
 }
-
-// --- BAŞLAT ---
-window.addEventListener("DOMContentLoaded", () => {
-    verileriGetir();
-});
