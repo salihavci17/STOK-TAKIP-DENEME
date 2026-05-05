@@ -3,232 +3,257 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2897/2897785.png">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Stok Takip">
-    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/2897/2897785.png">
-    <meta name="theme-color" content="#3498db">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <title>Stok Takip Sistemi</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; }
+        
+        /* Login Screen */
+        #loginScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .login-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+        .login-card h2 { text-align: center; color: #2c3e50; margin-bottom: 20px; }
+        .login-tabs { display: flex; gap: 5px; margin-bottom: 20px; background: #f0f2f5; padding: 5px; border-radius: 10px; }
+        .login-tab { flex: 1; padding: 10px; border: none; background: transparent; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .login-tab.active { background: #3498db; color: white; }
+        .login-form { display: none; }
+        .login-form.active { display: block; }
+        .login-form input, .login-form select { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 10px; }
+        .btn-login { width: 100%; background: #27ae60; color: white; padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        .demo-info { text-align: center; margin-top: 20px; font-size: 12px; color: #7f8c8d; }
+        
+        /* Ana Uygulama */
+        #mainApp { display: none; padding: 20px; max-width: 600px; margin: 0 auto; }
+        .app-header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 10px 15px; border-radius: 12px; margin-bottom: 20px; }
+        .user-info { display: flex; align-items: center; gap: 10px; }
+        .user-role { background: #3498db; color: white; padding: 4px 10px; border-radius: 20px; font-size: 11px; }
+        .btn-logout { background: #e74c3c; color: white; border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; }
+        
+        .dashboard { display: flex; gap: 10px; background: linear-gradient(135deg, #2c3e50, #34495e); padding: 15px; border-radius: 15px; margin-bottom: 20px; flex-wrap: wrap; }
+        .dash-card { flex: 1; text-align: center; color: white; }
+        .dash-card small { display: block; font-size: 10px; opacity: 0.8; }
+        .dash-card div { font-size: 18px; font-weight: bold; margin-top: 5px; }
+        
+        .tab-menu { display: flex; gap: 5px; background: white; padding: 5px; border-radius: 12px; margin-bottom: 20px; }
+        .tab-btn { flex: 1; padding: 10px; border: none; border-radius: 10px; cursor: pointer; background: transparent; }
+        .tab-btn.active { background: #3498db; color: white; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        .card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 15px; }
+        input, select { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 10px; }
+        .islem-butonlar { display: flex; gap: 10px; }
+        .btn-giris { background: #27ae60; color: white; flex: 1; padding: 12px; border: none; border-radius: 10px; cursor: pointer; }
+        .btn-cikis { background: #e74c3c; color: white; flex: 1; padding: 12px; border: none; border-radius: 10px; cursor: pointer; }
+        .btn-sepet { background: #9b59b6; color: white; width: 100%; padding: 12px; border: none; border-radius: 10px; cursor: pointer; margin-top: 10px; }
+        
+        .kritik-panel { background: #fff5f5; border-left: 5px solid #e74c3c; padding: 15px; border-radius: 12px; margin-bottom: 20px; display: none; }
+        .kritik-panel h4 { color: #c53030; margin-bottom: 10px; }
+        .kritik-panel ul { padding-left: 20px; }
+        
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #3498db; color: white; }
+        
+        .sepet-alani { background: white; border-radius: 15px; padding: 15px; margin-top: 20px; }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 1000; }
+        .modal-content { background: white; margin: 10% auto; padding: 20px; width: 90%; max-width: 500px; border-radius: 15px; }
+    </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
 </head>
 <body>
 
 <!-- GİRİŞ EKRANI -->
-<div id="loginScreen" class="login-screen">
+<div id="loginScreen">
     <div class="login-card">
         <h2>📦 Stok Takip Pro</h2>
         <div class="login-tabs">
             <button class="login-tab active" onclick="switchLoginTab('giris')">Giriş Yap</button>
             <button class="login-tab" onclick="switchLoginTab('kayit')">Kayıt Ol</button>
         </div>
-        
         <div id="girisForm" class="login-form active">
             <input type="email" id="loginEmail" placeholder="E-posta">
             <input type="password" id="loginPassword" placeholder="Şifre">
-            <button onclick="kullaniciGiris()" class="btn-login">Giriş Yap</button>
+            <button class="btn-login" onclick="kullaniciGiris()">Giriş Yap</button>
         </div>
-        
         <div id="kayitForm" class="login-form">
             <input type="email" id="registerEmail" placeholder="E-posta">
-            <input type="password" id="registerPassword" placeholder="Şifre (min 6 karakter)">
+            <input type="password" id="registerPassword" placeholder="Şifre (min 6)">
             <select id="registerRole">
                 <option value="personel">Personel</option>
                 <option value="yonetici">Yönetici</option>
             </select>
-            <button onclick="kullaniciKayit()" class="btn-login">Kayıt Ol</button>
+            <button class="btn-login" onclick="kullaniciKayit()">Kayıt Ol</button>
         </div>
-        
-        <div class="demo-info">
-            <p>Demo: demo@stok.com / 123456</p>
-        </div>
+        <div class="demo-info">Demo: demo@stok.com / 123456</div>
     </div>
 </div>
 
-<!-- ANA UYGULAMA (Giriş yapınca görünür) -->
-<div id="mainApp" style="display:none;">
+<!-- ANA UYGULAMA -->
+<div id="mainApp">
     <div class="app-header">
-        <h1>📦 Stok Takip Pro</h1>
+        <h1>📦 Stok Takip</h1>
         <div class="user-info">
             <span id="userName">-</span>
             <span id="userRole" class="user-role">-</span>
-            <button onclick="kullaniciCikis()" class="btn-logout">🚪 Çıkış</button>
+            <button class="btn-logout" onclick="kullaniciCikis()">🚪 Çıkış</button>
         </div>
     </div>
     
-    <div class="container">
-        <!-- Dashboard -->
-        <div class="dashboard">
-            <div class="dash-card"><small>TOPLAM STOK</small><div id="dashToplam">0</div></div>
-            <div class="dash-card" style="color:#f1c40f;"><small>KRİTİK ÜRÜN</small><div id="dashKritik">0</div></div>
-            <div class="dash-card" style="color:#2ecc71;"><small>BUGÜN GİRİŞ</small><div id="dashGiris">0</div></div>
-            <div class="dash-card" style="color:#3498db;"><small>POPÜLER ÜRÜN</small><div id="dashPopuler">-</div></div>
+    <div class="dashboard">
+        <div class="dash-card"><small>TOPLAM STOK</small><div id="dashToplam">0</div></div>
+        <div class="dash-card" style="color:#f1c40f;"><small>KRİTİK ÜRÜN</small><div id="dashKritik">0</div></div>
+        <div class="dash-card" style="color:#2ecc71;"><small>BUGÜN GİRİŞ</small><div id="dashGiris">0</div></div>
+        <div class="dash-card" style="color:#3498db;"><small>POPÜLER ÜRÜN</small><div id="dashPopuler">-</div></div>
+    </div>
+    
+    <div id="kritikPanel" class="kritik-panel">
+        <h4>⚠️ Kritik Seviyedeki Ürünler</h4>
+        <ul id="kritikListe"></ul>
+        <div style="display:flex; gap:10px; margin-top:10px;">
+            <button onclick="siparisPDF()" style="flex:1; background:#e74c3c; color:white; border:none; padding:8px; border-radius:8px;">📄 PDF Al</button>
+            <button onclick="siparisYazdir()" style="flex:1; background:#34495e; color:white; border:none; padding:8px; border-radius:8px;">🖨️ Yazdır</button>
         </div>
-        
-        <!-- Kritik Panel -->
-        <div id="kritikPanel" class="kritik-panel" style="display:none; margin-bottom:20px;">
-            <h4>⚠️ Kritik Seviyedeki Ürünler</h4>
-            <ul id="kritikListe"></ul>
-            <div class="siparis-butonlar">
-                <button onclick="siparisPDF()">📄 PDF Al</button>
-                <button onclick="siparisYazdir()">🖨️ Yazdır</button>
-            </div>
+    </div>
+    
+    <div class="tab-menu">
+        <button class="tab-btn active" data-tab="hizli-islem">⚡ Hızlı İşlem</button>
+        <button class="tab-btn" data-tab="stok-listesi">📋 Liste</button>
+        <button class="tab-btn" data-tab="yeni-urun">➕ Yeni Ürün</button>
+        <button class="tab-btn" data-tab="hareketler">🕒 Hareketler</button>
+        <button class="tab-btn" data-tab="rapor">📊 Rapor</button>
+        <button class="tab-btn" data-tab="kullanicilar">👥 Kullanıcılar</button>
+    </div>
+    
+    <div id="hizli-islem" class="tab-content active">
+        <div class="card">
+            <div id="reader" style="width:100%; display:none; margin-bottom:10px;"></div>
+            <button id="kameraAcBtn" style="width:100%; background:#27ae60; color:white; padding:12px; border:none; border-radius:10px;">📷 Barkod Oku</button>
         </div>
-        
-        <!-- Tab Menü -->
-        <div class="tab-menu">
-            <button class="tab-btn active" data-tab="hizli-islem">⚡ Hızlı İşlem</button>
-            <button class="tab-btn" data-tab="stok-listesi">📋 Liste</button>
-            <button class="tab-btn" data-tab="yeni-urun" id="yeniUrunTabBtn">➕ Yeni Ürün</button>
-            <button class="tab-btn" data-tab="hareketler">🕒 Hareketler</button>
-            <button class="tab-btn" data-tab="rapor">📊 Rapor</button>
-            <button class="tab-btn" data-tab="kullanicilar" id="kullaniciTabBtn">👥 Kullanıcılar</button>
+        <select id="urunSelect"><option value="">Ürün Seçin</option></select>
+        <input type="number" id="islemMiktar" placeholder="Adet">
+        <div class="islem-butonlar">
+            <button class="btn-giris" onclick="stokIslem('giris')">GİRİŞ (+)</button>
+            <button class="btn-cikis" onclick="stokIslem('cikis')">ÇIKIŞ (-)</button>
         </div>
-        
-        <!-- Hızlı İşlem Sekmesi -->
-        <div id="hizli-islem" class="tab-content active">
-            <div class="card">
-                <div id="reader" style="width:100%; max-width:400px; margin:0 auto; display:none;"></div>
-                <div style="display:flex; gap:10px; margin-top:10px;">
-                    <button id="kameraAcBtn" class="btn-primary">📷 Barkod Oku</button>
-                </div>
-            </div>
-            
-            <div class="urun-secim">
-                <select id="urunSelect"><option value="">Ürün Seçin</option></select>
-            </div>
-            
-            <input type="number" id="islemMiktar" placeholder="Adet">
-            
-            <div class="islem-butonlar">
-                <button onclick="stokIslem('giris')" class="btn-giris">GİRİŞ (+)</button>
-                <button onclick="stokIslem('cikis')" class="btn-cikis">ÇIKIŞ (-)</button>
-            </div>
-            
-            <button onclick="sepeteEkle()" class="btn-sepet">➕ Sepete Ekle</button>
+        <button class="btn-sepet" onclick="sepeteEkle()">➕ Sepete Ekle</button>
+    </div>
+    
+    <div class="sepet-alani">
+        <h4>🛒 Sepetiniz</h4>
+        <div id="sepetListesi">Sepet boş</div>
+        <div id="sepetButonlar" style="display:none; margin-top:10px;">
+            <button onclick="topluIslem('giris')" style="flex:1; background:#27ae60; color:white; padding:10px; border:none; border-radius:8px;">Toplu Giriş</button>
+            <button onclick="topluIslem('cikis')" style="flex:1; background:#e67e22; color:white; padding:10px; border:none; border-radius:8px;">Toplu Çıkış</button>
         </div>
-        
-        <!-- Sepet Alanı -->
-        <div class="sepet-alani">
-            <h4>🛒 Sepetiniz</h4>
-            <div id="sepetListesi">Sepet boş</div>
-            <div id="sepetButonlar" style="display:none;">
-                <button onclick="topluIslem('giris')">Toplu Giriş</button>
-                <button onclick="topluIslem('cikis')">Toplu Çıkış</button>
-            </div>
+    </div>
+    
+    <div id="stok-listesi" class="tab-content">
+        <h3>Stok Listesi</h3>
+        <input type="text" id="aramaKutusu" placeholder="Ürün Ara..." onkeyup="tabloFiltrele()">
+        <div style="overflow-x:auto;"><table class="stok-tablo"><thead><tr><th>Ürün</th><th>Mevcut</th><th></th></tr></thead><tbody id="tablo"></tbody></table></div>
+    </div>
+    
+    <div id="yeni-urun" class="tab-content">
+        <h3>Yeni Ürün Ekle</h3>
+        <input type="text" id="urunAdi" placeholder="Ürün Adı">
+        <div style="display:flex; gap:5px;">
+            <input type="text" id="urunBarkod" placeholder="Barkod" style="flex:1;">
+            <button id="yeniUrunKameraBtn" style="background:#34495e; color:white; padding:0 15px; border:none; border-radius:8px;">📷</button>
         </div>
-        
-        <!-- Yeni Ürün Sekmesi -->
-        <div id="yeni-urun" class="tab-content">
-            <h3>Yeni Ürün Ekle</h3>
-            <input type="text" id="urunAdi" placeholder="Ürün Adı">
-            <div class="barkod-grup">
-                <input type="text" id="urunBarkod" placeholder="Barkod">
-                <button id="yeniUrunKameraBtn" class="btn-secondary">📷 Barkod Oku</button>
+        <button onclick="urunEkle()" style="width:100%; background:#3498db; color:white; padding:12px; border:none; border-radius:10px; margin-top:10px;">Kaydet</button>
+    </div>
+    
+    <div id="hareketler" class="tab-content">
+        <h3>Son Hareketler</h3>
+        <div style="overflow-x:auto;"><table><thead><tr><th>Tarih</th><th>Ürün</th><th>Miktar</th><th>İşlem</th></tr></thead><tbody id="hareketlerTablo"></tbody></table></div>
+    </div>
+    
+    <div id="detayModal" class="modal">
+        <div class="modal-content">
+            <h3>Ürün Düzenle</h3>
+            <input type="text" id="modalUrunAd" placeholder="Ürün Adı">
+            <input type="text" id="modalBarkod" placeholder="Barkod">
+            <div style="display:flex; gap:10px;">
+                <input type="number" id="modalMiktar" placeholder="Stok">
+                <input type="number" id="modalKritik" placeholder="Kritik">
             </div>
-            <button onclick="urunEkle()" class="btn-kaydet">Kaydet</button>
+            <select id="modalGrup"><option>Genel</option></select>
+            <div style="display:flex; gap:10px; margin-top:15px;">
+                <button onclick="urunGuncelle()" style="flex:2; background:#27ae60; color:white; padding:10px; border:none; border-radius:8px;">Güncelle</button>
+                <button onclick="kapatModal()" style="flex:1; background:#95a5a6; color:white; padding:10px; border:none; border-radius:8px;">İptal</button>
+            </div>
+            <h4>Son Hareketler</h4>
+            <div id="detayIcerik"></div>
         </div>
-        
-        <!-- Stok Listesi Sekmesi -->
-        <div id="stok-listesi" class="tab-content">
-            <h3>Stok Listesi</h3>
-            <input type="text" id="aramaKutusu" placeholder="Ürün veya Barkod Ara..." onkeyup="tabloFiltrele()">
-            <div class="tablo-kapsayici">
-                <table class="stok-tablo">
-                    <thead><tr><th>Ürün</th><th>Mevcut</th><th></th></tr></thead>
-                    <tbody id="tablo"></tbody>
+    </div>
+    <div id="rapor" class="tab-content">
+    <div style="background:white; border-radius:15px; padding:20px;">
+        <h3>Raporlama</h3>
+        <div style="display:flex; gap:10px; margin-bottom:10px;">
+            <input type="date" id="raporBaslangic">
+            <input type="date" id="raporBitis">
+        </div>
+        <select id="raporFiltre" style="margin-bottom:10px; width:100%; padding:10px;">
+            <option value="hepsi">Tüm İşlemler</option>
+            <option value="giris">Sadece Girişler</option>
+            <option value="cikis">Sadece Çıkışlar</option>
+        </select>
+        <button onclick="raporOlustur()" style="width:100%; background:#34495e; color:white; padding:12px; border:none; border-radius:10px;">Sorgula</button>
+        <div id="raporSonuc" style="display:none; margin-top:15px;">
+            <div style="display:flex; gap:10px; margin-bottom:10px;">
+                <button onclick="excelIndir()" style="flex:1; background:#27ae60; color:white; padding:10px; border:none; border-radius:8px;">Excel İndir</button>
+                <button onclick="pdfIndir()" style="flex:1; background:#e67e22; color:white; padding:10px; border:none; border-radius:8px;">PDF İndir</button>
+            </div>
+            <div style="overflow-x:auto;">
+                <table id="raporTablo">
+                    <thead>
+                        <tr><th>Ürün Adı</th><th>Giriş</th><th>Çıkış</th></tr>
+                    </thead>
+                    <tbody id="raporTabloGovde"></tbody>
                 </table>
-            </div>
-        </div>
-        
-        <!-- Hareketler Sekmesi -->
-        <div id="hareketler" class="tab-content">
-            <h3>Son Hareketler</h3>
-            <div class="tablo-kapsayici">
-                <table>
-                    <thead><tr><th>Tarih</th><th>Ürün</th><th>Miktar</th><th>İşlem</th><th>Kullanıcı</th><th></th></tr></thead>
-                    <tbody id="hareketlerTablo"></tbody>
-                </table>
-            </div>
-        </div>
-        
-        <!-- Rapor Sekmesi -->
-        <div id="rapor" class="tab-content">
-            <h3>Raporlama</h3>
-            <div class="tarih-grup">
-                <input type="date" id="raporBaslangic">
-                <input type="date" id="raporBitis">
-            </div>
-            <select id="raporFiltre">
-                <option value="hepsi">Tüm İşlemler</option>
-                <option value="giris">Sadece Girişler</option>
-                <option value="cikis">Sadece Çıkışlar</option>
-            </select>
-            <button onclick="raporOlustur()" class="btn-sorgula">Sorgula</button>
-            
-            <div id="raporSonuc" style="display:none; margin-top:15px;">
-                <div class="rapor-butonlar">
-                    <button onclick="excelIndir()">📊 Excel İndir</button>
-                    <button onclick="pdfIndir()">📄 PDF İndir</button>
-                </div>
-                <div class="tablo-kapsayici">
-                    <table id="raporTablo">
-                        <thead><tr><th>Ürün Adı</th><th>Giriş</th><th>Çıkış</th></tr></thead>
-                        <tbody id="raporTabloGovde"></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Kullanıcılar Sekmesi -->
-        <div id="kullanicilar" class="tab-content">
-            <h3>👥 Kullanıcı Yönetimi</h3>
-            <div class="kullanici-ekle">
-                <h4>Yeni Kullanıcı Ekle</h4>
-                <input type="email" id="yeniKullaniciEmail" placeholder="E-posta">
-                <input type="password" id="yeniKullaniciSifre" placeholder="Şifre">
-                <select id="yeniKullaniciRol">
-                    <option value="admin">Admin</option>
-                    <option value="yonetici">Yönetici</option>
-                    <option value="personel">Personel</option>
-                    <option value="goruntuleyici">Görüntüleyici</option>
-                </select>
-                <button onclick="adminKullaniciEkle()" class="btn-kaydet">Kullanıcı Ekle</button>
-            </div>
-            <div class="kullanici-listesi" style="margin-top:20px;">
-                <h4>Mevcut Kullanıcılar</h4>
-                <div id="kullaniciListesi"></div>
-            </div>
-        </div>
-        
-        <!-- Detay Modal -->
-        <div id="detayModal" class="modal">
-            <div class="modal-content">
-                <h3>📦 Ürün Düzenle</h3>
-                <input type="text" id="modalUrunAd" placeholder="Ürün Adı">
-                <input type="text" id="modalBarkod" placeholder="Barkod">
-                <div class="modal-satir">
-                    <input type="number" id="modalMiktar" placeholder="Stok">
-                    <input type="number" id="modalKritik" placeholder="Kritik">
-                </div>
-                <select id="modalGrup">
-                    <option value="Tekel">Tekel</option>
-                    <option value="Winston">Winston</option>
-                    <option value="P&M">P&M</option>
-                    <option value="Genel">Genel</option>
-                </select>
-                <div class="modal-butonlar">
-                    <button onclick="urunGuncelle()" class="btn-guncelle">Güncelle</button>
-                    <button onclick="kapatModal()" class="btn-iptal">İptal</button>
-                </div>
-                <h4>Son Hareketler</h4>
-                <div id="detayIcerik"></div>
             </div>
         </div>
     </div>
+</div>
+    <div id="kullanicilar" class="tab-content">
+    <h3>👥 Kullanıcı Yönetimi</h3>
+    <div class="kullanici-ekle">
+        <h4>Yeni Kullanıcı Ekle (Admin)</h4>
+        <input type="email" id="yeniKullaniciEmail" placeholder="E-posta">
+        <input type="password" id="yeniKullaniciSifre" placeholder="Şifre">
+        <select id="yeniKullaniciRol">
+            <option value="admin">Admin</option>
+            <option value="yonetici">Yönetici</option>
+            <option value="personel">Personel</option>
+            <option value="goruntuleyici">Görüntüleyici</option>
+        </select>
+        <button onclick="adminKullaniciEkle()" style="width:100%; background:#3498db; color:white; padding:10px; border:none; border-radius:8px;">Kullanıcı Ekle</button>
+    </div>
+    <div style="margin-top:20px;">
+        <h4>Mevcut Kullanıcılar</h4>
+        <div id="kullaniciListesi"></div>
+    </div>
+</div>
 </div>
 
 <script type="module" src="app.js"></script>

@@ -1,171 +1,484 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, sans-serif;
+    background: #0a0a0a;
+    color: #ffffff;
+}
+
 /* Login Screen */
-.login-screen {
+#loginScreen {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, #2c3e50, #3498db);
+    background: #0a0a0a;
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 2000;
+    z-index: 1000;
 }
 
 .login-card {
-    background: white;
-    border-radius: 20px;
-    padding: 30px;
+    background: #1a1a1a;
+    border-radius: 48px;
+    padding: 48px 32px;
     width: 90%;
-    max-width: 400px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    max-width: 420px;
+    border: 1px solid #2a2a2a;
 }
 
 .login-card h2 {
     text-align: center;
-    color: #2c3e50;
-    margin-bottom: 20px;
+    color: #ffffff;
+    margin-bottom: 32px;
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
 }
 
 .login-tabs {
     display: flex;
-    gap: 5px;
-    margin-bottom: 20px;
-    background: #f0f2f5;
-    padding: 5px;
-    border-radius: 10px;
+    gap: 8px;
+    margin-bottom: 32px;
+    background: #0a0a0a;
+    padding: 4px;
+    border-radius: 60px;
+    border: 1px solid #2a2a2a;
 }
 
 .login-tab {
     flex: 1;
-    padding: 10px;
+    padding: 12px;
     border: none;
     background: transparent;
-    border-radius: 8px;
+    border-radius: 50px;
     cursor: pointer;
-    font-weight: bold;
+    font-weight: 600;
+    font-size: 14px;
+    color: #666;
+    transition: all 0.3s ease;
 }
 
 .login-tab.active {
-    background: #3498db;
-    color: white;
+    background: #ffffff;
+    color: #0a0a0a;
 }
 
-.login-form {
-    display: none;
+.login-form input, .login-form select {
+    width: 100%;
+    padding: 16px;
+    margin-bottom: 12px;
+    border: 1px solid #2a2a2a;
+    border-radius: 24px;
+    font-size: 14px;
+    background: #0a0a0a;
+    color: #ffffff;
+    transition: all 0.3s ease;
 }
 
-.login-form.active {
-    display: block;
+.login-form input:focus, .login-form select:focus {
+    outline: none;
+    border-color: #ffffff;
 }
 
 .btn-login {
     width: 100%;
-    background: #27ae60;
-    color: white;
-    padding: 12px;
+    background: #ffffff;
+    color: #0a0a0a;
+    padding: 16px;
     border: none;
-    border-radius: 10px;
-    font-weight: bold;
+    border-radius: 32px;
+    font-weight: 700;
+    font-size: 16px;
     cursor: pointer;
-    margin-top: 10px;
+    transition: all 0.3s ease;
+    margin-top: 12px;
 }
 
-.demo-info {
-    text-align: center;
-    margin-top: 20px;
-    font-size: 12px;
-    color: #7f8c8d;
+.btn-login:hover {
+    opacity: 0.9;
+    transform: scale(0.98);
 }
 
-/* App Header */
+/* Ana Uygulama */
+#mainApp {
+    display: none;
+    padding: 20px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
 .app-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: white;
-    padding: 10px 20px;
-    border-radius: 12px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
+    margin-bottom: 24px;
 }
 
 .app-header h1 {
-    margin: 0;
-    font-size: 1.2rem;
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, #fff, #666);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .user-info {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
+    background: #1a1a1a;
+    padding: 6px 16px 6px 20px;
+    border-radius: 60px;
 }
 
 .user-role {
-    background: #3498db;
-    color: white;
-    padding: 4px 10px;
-    border-radius: 20px;
+    background: #2a2a2a;
+    color: #aaa;
+    padding: 4px 12px;
+    border-radius: 50px;
     font-size: 11px;
+    font-weight: 500;
 }
 
 .btn-logout {
-    background: #e74c3c;
-    color: white;
+    background: none;
     border: none;
-    padding: 6px 12px;
-    border-radius: 8px;
+    color: #ff4444;
+    font-size: 18px;
     cursor: pointer;
-    font-size: 12px;
+    padding: 8px;
 }
 
-/* Kullanıcı Tablosu */
-.kullanici-tablo {
+/* Dashboard */
+.dashboard {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.dash-card {
+    flex: 1;
+    background: #1a1a1a;
+    border-radius: 32px;
+    padding: 16px;
+    text-align: center;
+    border: 1px solid #2a2a2a;
+}
+
+.dash-card small {
+    display: block;
+    font-size: 11px;
+    color: #666;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.dash-card div {
+    font-size: 28px;
+    font-weight: 800;
+}
+
+/* Tab Menu */
+.tab-menu {
+    display: flex;
+    gap: 8px;
+    background: #1a1a1a;
+    padding: 6px;
+    border-radius: 60px;
+    margin-bottom: 24px;
+    border: 1px solid #2a2a2a;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    background: transparent;
+    font-weight: 600;
+    font-size: 13px;
+    color: #666;
+    transition: all 0.3s ease;
+}
+
+.tab-btn.active {
+    background: #ffffff;
+    color: #0a0a0a;
+}
+
+/* Tab Content */
+.tab-content {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Kartlar */
+.card {
+    background: #1a1a1a;
+    border-radius: 32px;
+    padding: 24px;
+    margin-bottom: 16px;
+    border: 1px solid #2a2a2a;
+}
+
+/* Form Elemanları */
+input, select {
+    width: 100%;
+    padding: 16px;
+    margin-bottom: 12px;
+    border: 1px solid #2a2a2a;
+    border-radius: 24px;
+    font-size: 15px;
+    background: #0a0a0a;
+    color: #ffffff;
+    transition: all 0.3s ease;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: #ffffff;
+}
+
+/* Butonlar */
+.btn-giris, .btn-cikis, .btn-sepet {
+    padding: 16px;
+    border: none;
+    border-radius: 32px;
+    font-weight: 700;
+    font-size: 15px;
+    transition: all 0.3s ease;
+}
+
+.btn-giris {
+    background: #00c853;
+    color: #0a0a0a;
+    flex: 1;
+}
+
+.btn-cikis {
+    background: #ff3b30;
+    color: #ffffff;
+    flex: 1;
+}
+
+.btn-sepet {
+    background: #ffffff;
+    color: #0a0a0a;
+    width: 100%;
+    margin-top: 12px;
+}
+
+.islem-butonlar {
+    display: flex;
+    gap: 12px;
+}
+
+/* Kritik Panel */
+.kritik-panel {
+    background: #1a0a0a;
+    border-left: 4px solid #ff3b30;
+    padding: 20px;
+    border-radius: 24px;
+    margin-bottom: 24px;
+    display: none;
+}
+
+.kritik-panel h4 {
+    color: #ff3b30;
+    margin-bottom: 12px;
+    font-size: 14px;
+}
+
+.kritik-panel ul {
+    padding-left: 20px;
+    margin-bottom: 16px;
+}
+
+.kritik-panel li {
+    color: #ff6b6b;
+    margin: 8px 0;
+    font-size: 13px;
+}
+
+/* Tablolar */
+table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 12px;
 }
 
-.kullanici-tablo th, .kullanici-tablo td {
-    padding: 8px;
+th {
     text-align: left;
-    border-bottom: 1px solid #eee;
+    padding: 12px;
+    color: #666;
+    font-weight: 500;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+}
+
+td {
+    padding: 12px;
+    border-bottom: 1px solid #1a1a1a;
+    font-size: 14px;
+}
+
+/* Sepet Alanı */
+.sepet-alani {
+    background: #1a1a1a;
+    border-radius: 32px;
+    padding: 20px;
+    margin-top: 20px;
+    border: 1px solid #2a2a2a;
+}
+
+.sepet-alani h4 {
+    margin-bottom: 16px;
+    font-size: 16px;
+}
+
+/* Modal */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+    display: none;
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background: #1a1a1a;
+    margin: 0 auto;
+    padding: 28px;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 48px;
+    border: 1px solid #2a2a2a;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-content h3 {
+    margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.modal-satir {
+    display: flex;
+    gap: 12px;
+}
+
+.modal-butonlar {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.btn-guncelle {
+    background: #00c853;
+    color: #0a0a0a;
+    flex: 2;
+    padding: 14px;
+    border: none;
+    border-radius: 40px;
+    font-weight: 700;
+}
+
+.btn-iptal {
+    background: #2a2a2a;
+    color: #ffffff;
+    flex: 1;
+    padding: 14px;
+    border: none;
+    border-radius: 40px;
+    font-weight: 600;
+}
+
+/* Kullanıcı Yönetimi */
+.kullanici-ekle {
+    background: #0a0a0a;
+    padding: 20px;
+    border-radius: 32px;
+    margin-top: 20px;
+    border: 1px solid #2a2a2a;
+}
+
+.kullanici-ekle h4 {
+    margin-bottom: 16px;
+    color: #ffffff;
+}
+
+.kullanici-ekle input, .kullanici-ekle select {
+    background: #1a1a1a;
 }
 
 .rol-badge {
     display: inline-block;
-    padding: 2px 8px;
-    border-radius: 12px;
+    padding: 4px 12px;
+    border-radius: 50px;
     font-size: 10px;
-    font-weight: bold;
+    font-weight: 600;
 }
 
-.rol-admin { background: #e74c3c; color: white; }
-.rol-yonetici { background: #f39c12; color: white; }
-.rol-personel { background: #27ae60; color: white; }
-.rol-goruntuleyici { background: #95a5a6; color: white; }
+.rol-admin { background: #ff3b30; color: white; }
+.rol-yonetici { background: #ff9500; color: black; }
+.rol-personel { background: #00c853; color: black; }
+.rol-goruntuleyici { background: #8e8e93; color: white; }
 
-/* Kullanıcı Ekleme Alanı */
-.kullanici-ekle {
-    background: #f8f9fa;
-    padding: 15px;
-    border-radius: 12px;
+/* Butonlar için genel hover */
+button:hover {
+    opacity: 0.9;
 }
 
-.kullanici-ekle h4 {
-    margin-bottom: 10px;
-    color: #2c3e50;
+/* Reader (Kamera) */
+#reader {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+    border-radius: 32px;
+    overflow: hidden;
+}
+
+#reader video {
+    width: 100%;
+    height: auto;
 }
 
 /* Responsive */
 @media (max-width: 480px) {
-    .app-header {
-        flex-direction: column;
-        gap: 10px;
-        text-align: center;
-    }
-    
-    .user-info {
-        justify-content: center;
-    }
+    #mainApp { padding: 12px; }
+    .dashboard { flex-wrap: wrap; }
+    .dash-card { flex: 0 0 calc(50% - 6px); }
+    .tab-btn { font-size: 10px; padding: 8px 4px; }
+    .app-header { flex-direction: column; gap: 12px; text-align: center; }
+    .user-info { justify-content: center; }
 }
